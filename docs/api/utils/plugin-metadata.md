@@ -8,6 +8,7 @@ Utilities for loading and injecting plugin metadata from Package CRD files into 
 import {
   shouldInjectPluginMetadata,
   extractPluginName,
+  getNormalizedPluginMergeKey,
   getMetadataDirectory,
   parseAllMetadataFiles,
   injectMetadataConfig,
@@ -73,6 +74,38 @@ function extractPluginName(packageRef: string): string
 ```typescript
 const name = extractPluginName("oci://quay.io/rhdh/backstage-community-plugin-tech-radar:1.0.0");
 // Returns: "backstage-community-plugin-tech-radar"
+```
+
+---
+
+### getNormalizedPluginMergeKey()
+
+Returns a stable merge key for a plugin entry so that OCI and local path for the same logical plugin match when merging dynamic-plugins configs. Strips a trailing `-dynamic` suffix so that e.g. `backstage-community-plugin-catalog-backend-module-keycloak-dynamic` (local) and `backstage-community-plugin-catalog-backend-module-keycloak` (from OCI) map to the same key.
+
+```typescript
+function getNormalizedPluginMergeKey(entry: { package?: string }): string
+```
+
+**Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `entry` | `{ package?: string }` | Plugin entry with optional package reference |
+
+**Returns:** Normalized key for merge deduplication, or empty string if `package` is missing.
+
+**Example:**
+
+```typescript
+// OCI and local path for the same plugin yield the same key
+getNormalizedPluginMergeKey({
+  package: "oci://ghcr.io/org/repo/backstage-community-plugin-catalog-backend-module-keycloak:tag!alias",
+});
+// Returns: "backstage-community-plugin-catalog-backend-module-keycloak"
+
+getNormalizedPluginMergeKey({
+  package: "./dynamic-plugins/dist/backstage-community-plugin-catalog-backend-module-keycloak-dynamic",
+});
+// Returns: "backstage-community-plugin-catalog-backend-module-keycloak"
 ```
 
 ---

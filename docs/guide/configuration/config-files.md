@@ -193,6 +193,9 @@ If your `dynamic-plugins.yaml` file doesn't exist, the package **auto-generates*
 1. Iterates through all metadata files in `../metadata/`
 2. Creates plugin entries with `disabled: false` (enabled)
 3. Uses `spec.appConfigExamples[0].content` as the plugin config
+4. Merges the result with package defaults and auth-specific plugins (e.g. Keycloak)
+
+Entries for the **same logical plugin** (e.g. keycloak from metadata and from auth) are **deduplicated**: the plugin appears once in the final config. When both metadata and auth list the same plugin, the metadata-derived entry wins (e.g. the OCI URL on PR builds is kept instead of the auth default local path).
 
 This is useful when you want to test all plugins with their default configurations without writing a `dynamic-plugins.yaml`.
 
