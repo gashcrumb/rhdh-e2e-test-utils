@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.16] - Current
+
+### Fixed
+
+- **Duplicate plugin when no user `dynamic-plugins.yaml` (Keycloak auth, PR build)**: When the workspace had no `dynamic-plugins.yaml`, auto-generated config (with OCI URL) was merged with auth config (with local path). Because merge used exact `package` string match, the same plugin appeared twice and the backend failed with `ExtensionPoint with ID 'keycloak.transformer' is already registered`. The merge now uses a normalized plugin key so OCI and local path for the same logical plugin are deduplicated; the metadata-derived entry (e.g. OCI URL) wins.
+
 ## [1.1.15] - Current
 
 ### Added

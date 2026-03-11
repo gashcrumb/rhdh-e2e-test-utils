@@ -214,5 +214,12 @@ export function createEslintConfig(tsconfigRootDir: string): Linter.Config[] {
         "check-file/filename-naming-convention": "off",
       },
     },
+    // Node test runner (*.test.ts) - describe/it return promises the runner handles
+    {
+      files: ["**/*.test.ts"],
+      rules: {
+        "@typescript-eslint/no-floating-promises": "off",
+      },
+    },
   ] as Linter.Config[];
 }

@@ -8,7 +8,11 @@ import mergeWith from "lodash.mergewith";
 export type ArrayMergeStrategy =
   | "replace" // Replace arrays entirely (default, Kustomize-style)
   | "concat" // Concatenate arrays
-  | { byKey: string }; // Merge arrays of objects by a specific key
+  | {
+      byKey: string;
+      /** Optional: normalize key for matching so different values (e.g. OCI vs local path) map to the same entry. Source wins when merging. */
+      normalizeKey?: (item: unknown) => string;
+    };
 
 /**
  * Options for YAML merging.
@@ -19,45 +23,61 @@ export interface MergeOptions {
    * - "replace": Replace arrays entirely (default)
    * - "concat": Concatenate arrays
    * - { byKey: "keyName" }: Merge arrays of objects by a specific key
+   * - { byKey: "keyName", normalizeKey }: Same, but match by normalized key (e.g. for plugin deduplication)
    */
   arrayMergeStrategy?: ArrayMergeStrategy;
 }
 
 /**
- * Merges two arrays of objects by a specific key.
- * Objects with matching keys are deeply merged, new objects are appended.
+ * Returns the merge key for an item: normalized if normalizeKey is provided, else raw key value.
+ * Returns null if the item is not an object or has no key (and no normalizer is provided).
+ */
+function getMergeKey(
+  item: unknown,
+  key: string,
+  normalizeKey?: (item: unknown) => string,
+): string | null {
+  if (typeof item !== "object" || item === null) {
+    return null;
+  }
+  if (normalizeKey) {
+    return normalizeKey(item);
+  }
+  if (key in (item as Record<string, unknown>)) {
+    return String((item as Record<string, unknown>)[key]);
+  }
+  return null;
+}
+
+/**
+ * Merges two arrays of objects by a specific key (optionally normalized).
+ * Objects with matching keys are deeply merged, new objects are appended. Source wins.
  */
 function mergeArraysByKey(
   target: unknown[],
   source: unknown[],
-  key: string,
+  keyStrategy: { byKey: string; normalizeKey?: (item: unknown) => string },
   mergeOptions: MergeOptions,
 ): unknown[] {
+  const { byKey: key, normalizeKey } = keyStrategy;
   const result = [...target];
 
   for (const srcItem of source) {
-    if (typeof srcItem === "object" && srcItem !== null && key in srcItem) {
-      const srcKeyValue = (srcItem as Record<string, unknown>)[key];
-      const existingIndex = result.findIndex(
-        (item) =>
-          typeof item === "object" &&
-          item !== null &&
-          (item as Record<string, unknown>)[key] === srcKeyValue,
+    const srcKeyValue = getMergeKey(srcItem, key, normalizeKey);
+    if (srcKeyValue === null) {
+      result.push(srcItem);
+      continue;
+    }
+    const existingIndex = result.findIndex(
+      (item) => getMergeKey(item, key, normalizeKey) === srcKeyValue,
+    );
+    if (existingIndex !== -1) {
+      result[existingIndex] = deepMerge(
+        result[existingIndex] as Record<string, unknown>,
+        srcItem as Record<string, unknown>,
+        mergeOptions,
       );
-
-      if (existingIndex !== -1) {
-        // Merge existing object with source object
-        result[existingIndex] = deepMerge(
-          result[existingIndex] as Record<string, unknown>,
-          srcItem as Record<string, unknown>,
-          mergeOptions,
-        );
-      } else {
-        // Append new object
-        result.push(srcItem);
-      }
     } else {
-      // Non-object or missing key, append as-is
       result.push(srcItem);
     }
   }
@@ -86,7 +106,7 @@ export function deepMerge(
         } else if (strategy === "concat") {
           return [...objValue, ...srcValue];
         } else if (typeof strategy === "object" && "byKey" in strategy) {
-          return mergeArraysByKey(objValue, srcValue, strategy.byKey, options);
+          return mergeArraysByKey(objValue, srcValue, strategy, options);
         }
       }
     },

@@ -123,6 +123,8 @@ The `RHDHDeployment` class automatically uses these utilities during `deploy()`:
 
 2. If `dynamic-plugins.yaml` doesn't exist:
    - Auto-generates from all metadata files
+   - Merges with package defaults and auth-specific plugins (e.g. Keycloak)
+   - Deduplicates by normalized plugin name so the same logical plugin appears once (metadata/OCI wins)
    - All plugins enabled with default configurations
 
 See [Configuration Files](/guide/configuration/config-files#plugin-metadata-injection) for detailed behavior.

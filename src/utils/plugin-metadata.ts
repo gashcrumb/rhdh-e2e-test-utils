@@ -204,6 +204,25 @@ export function extractPluginName(packageRef: string): string {
 }
 
 /**
+ * Returns a stable merge key for a plugin entry so OCI and local path for the same
+ * logical plugin match when merging dynamic-plugins configs. Strips a trailing
+ * "-dynamic" so e.g. backstage-community-plugin-catalog-backend-module-keycloak-dynamic
+ * and ...-keycloak (from OCI) map to the same key.
+ *
+ * @param entry Plugin entry with optional package reference
+ * @returns Normalized key for merge deduplication, or empty string if package is missing
+ */
+export function getNormalizedPluginMergeKey(entry: {
+  package?: string;
+}): string {
+  const pkg = entry?.package;
+  if (pkg === undefined || pkg === "") {
+    return "";
+  }
+  return extractPluginName(pkg).replace(/-dynamic$/, "");
+}
+
+/**
  * Default metadata directory path relative to the e2e-tests directory.
  * Follows the same pattern as user config paths (e.g., tests/config/dynamic-plugins.yaml).
  */

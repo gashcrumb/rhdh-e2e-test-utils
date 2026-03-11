@@ -6,6 +6,7 @@ import { mergeYamlFilesIfExists, deepMerge } from "../../utils/merge-yamls.js";
 import {
   loadAndInjectPluginMetadata,
   generateDynamicPluginsConfigFromMetadata,
+  getNormalizedPluginMergeKey,
 } from "../../utils/plugin-metadata.js";
 import { envsubst } from "../../utils/common.js";
 import { runOnce } from "../../playwright/run-once.js";
@@ -128,13 +129,19 @@ export class RHDHDeployment {
       );
       const metadataConfig = await generateDynamicPluginsConfigFromMetadata();
 
-      // Merge with package defaults and auth config
+      // Merge with package defaults and auth config. Use normalized plugin key so
+      // the same logical plugin (e.g. keycloak from metadata OCI + auth local path)
+      // is deduplicated; metadata (source) wins so OCI URL is kept on PR builds.
       const authPlugins = await mergeYamlFilesIfExists(
         [DEFAULT_CONFIG_PATHS.dynamicPlugins, authConfig.dynamicPlugins],
         { arrayMergeStrategy: { byKey: "package" } },
       );
-      return deepMerge(metadataConfig, authPlugins, {
-        arrayMergeStrategy: { byKey: "package" },
+      return deepMerge(authPlugins, metadataConfig, {
+        arrayMergeStrategy: {
+          byKey: "package",
+          normalizeKey: (item) =>
+            getNormalizedPluginMergeKey(item as Record<string, unknown>),
+        },
       });
     }
 

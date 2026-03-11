@@ -1,6 +1,6 @@
 {
   "name": "@red-hat-developer-hub/e2e-test-utils",
-  "version": "1.1.15",
+  "version": "1.1.16",
   "description": "Test utilities for RHDH E2E tests",
   "license": "Apache-2.0",
   "repository": {
@@ -66,6 +66,7 @@
     "prepublishOnly": "yarn build",
     "prettier:check": "prettier --check . '!dist' '!README.md' '!docs' '!.github/workflows/deploy-docs.yml'",
     "prettier:fix": "prettier --write . '!dist' '!README.md' '!docs' '!.github/workflows/deploy-docs.yml'",
+    "test": "node --test \"dist/**/*.test.js\"",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
@@ -75,7 +76,7 @@
     "test-utils"
   ],
   "engines": {
-    "node": ">=22",
+    "node": ">=22.18.0",
     "yarn": ">=3"
   },
   "peerDependencies": {
