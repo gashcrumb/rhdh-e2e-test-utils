@@ -396,6 +396,10 @@ export default defineConfig({
               link: "/overlay/reference/environment-variables",
             },
             {
+              text: "Unified Test Runner (run-e2e.sh)",
+              link: "/overlay/reference/run-e2e",
+            },
+            {
               text: "Local OCI Testing",
               link: "/overlay/reference/local-oci-testing",
             },
