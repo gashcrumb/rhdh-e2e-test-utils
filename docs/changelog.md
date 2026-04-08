@@ -2,7 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.27] - Current
+## [1.1.28] - Current
+
+- **APIHelper.createGitHubRepoWithFile**: Ensure file creation happens after repository creation.
+
+### Added
+
+- **`GITHUB_API_ENDPOINTS.getOrg(owner)`**: Get GitHub organization
+- **`GITHUB_API_ENDPOINTS.getRepo(owner, repo)`**: Get GitHub repository
+
+## [1.1.27]
 
 ### Fixed
 

@@ -80,6 +80,23 @@ export class APIHelper {
     // Create the repository
     await APIHelper.createGitHubRepo(owner, repoName);
 
+    // Wait until repository is created
+    await expect
+      .poll(
+        async () => {
+          const res = await APIHelper.githubRequest(
+            "GET",
+            GITHUB_API_ENDPOINTS.getRepo(owner, repoName),
+          );
+          return res.status();
+        },
+        {
+          timeout: 30_000,
+          intervals: [5000],
+        },
+      )
+      .toBe(200);
+
     // Add the specified file
     await APIHelper.createFileInRepo(
       owner,
