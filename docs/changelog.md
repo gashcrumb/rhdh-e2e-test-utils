@@ -2,7 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.32] - Current
+## [1.1.33] - Current
+
+### Added
+
+- **Automatic Vault secret loading for local development**: Set `VAULT=1` or `VAULT=true` to automatically fetch secrets from HashiCorp Vault during global setup. Handles OIDC login, fetches global and per-workspace secrets, and injects them into `process.env`. Only secret key names are logged, never values. Configurable via `VAULT_ADDR` and `VAULT_BASE_PATH` env vars. Logs a Slack channel (`#rhdh-e2e-tests`) when permission is denied.
 
 ### Fixed
 

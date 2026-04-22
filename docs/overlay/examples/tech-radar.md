@@ -52,6 +52,7 @@ workspaces/tech-radar/e2e-tests/
   "description": "E2E tests for Tech Radar plugin",
   "scripts": {
     "test": "playwright test",
+    "test:vault": "VAULT=1 playwright test",
     "report": "playwright show-report",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
@@ -65,9 +66,8 @@ workspaces/tech-radar/e2e-tests/
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.59.1",
-    "@red-hat-developer-hub/e2e-test-utils": "1.1.30",
+    "@red-hat-developer-hub/e2e-test-utils": "1.1.33",
     "@types/node": "25.5.2",
-    "dotenv": "17.4.1",
     "eslint": "10.2.0",
     "eslint-plugin-check-file": "3.3.1",
     "eslint-plugin-playwright": "2.10.1",
@@ -82,9 +82,6 @@ workspaces/tech-radar/e2e-tests/
 
 ```typescript
 import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
-import dotenv from "dotenv";
-
-dotenv.config({ path: `${import.meta.dirname}/.env` });
 
 /**
  * Tech Radar plugin e2e test configuration.

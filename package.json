@@ -1,6 +1,6 @@
 {
   "name": "@red-hat-developer-hub/e2e-test-utils",
-  "version": "1.1.32",
+  "version": "1.1.33",
   "description": "Test utilities for RHDH E2E tests",
   "license": "Apache-2.0",
   "repository": {
@@ -107,6 +107,7 @@
     "@eslint/js": "10.0.1",
     "@keycloak/keycloak-admin-client": "26.5.6",
     "@kubernetes/client-node": "1.4.0",
+    "dotenv": "17.4.2",
     "eslint": "10.2.0",
     "eslint-plugin-check-file": "3.3.1",
     "eslint-plugin-playwright": "2.10.1",
