@@ -18,10 +18,25 @@ export const DEFAULT_CONFIG_PATHS = {
     PACKAGE_ROOT,
     "dist/deployment/rhdh/config/common/dynamic-plugins.yaml",
   ),
+  /** New frontend system (app-next): merged when useNewFrontendSystem is true */
+  newFrontendSystem: {
+    secrets: path.join(
+      PACKAGE_ROOT,
+      "dist/deployment/rhdh/config/common/new-frontend-system-secrets.yaml",
+    ),
+    dynamicPlugins: path.join(
+      PACKAGE_ROOT,
+      "dist/deployment/rhdh/config/common/new-frontend-system-dynamic-plugins.yaml",
+    ),
+  },
   helm: {
     valueFile: path.join(
       PACKAGE_ROOT,
       "dist/deployment/rhdh/config/helm/value_file.yaml",
+    ),
+    valueFileNewFrontend: path.join(
+      PACKAGE_ROOT,
+      "dist/deployment/rhdh/config/helm/value_file.new-frontend.yaml",
     ),
   },
   operator: {

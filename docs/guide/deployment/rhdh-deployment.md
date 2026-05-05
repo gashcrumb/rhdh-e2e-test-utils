@@ -57,6 +57,30 @@ test("example", async ({ rhdh }) => {
 | `dynamicPlugins` | `string` | Path to dynamic-plugins YAML |
 | `valueFile` | `string` | Helm values file (Helm only) |
 | `subscription` | `string` | Backstage CR file (Operator only) |
+| `disableWrappers` | `string[]` | Wrapper plugin package names to disable (`GIT_PR_NUMBER` flows) |
+| `useNewFrontendSystem` | `boolean` | When `true`, enables the Backstage **new frontend system** shell (app-next): merges `APP_CONFIG_app_packageName` / `ENABLE_STANDARD_MODULE_FEDERATION` into `rhdh-secrets`, adds OCI **app-auth** and **app-integrations** dynamic plugins (with optional env overrides — see [Environment Variables](/guide/configuration/environment-variables#new-frontend-system-app-next-shell-plugins)), and merges extra Helm values (`value_file.new-frontend.yaml`, optional workspace `tests/config/value_file-app-next.yaml`). Defaults to `false`. |
+
+### New frontend system (`useNewFrontendSystem`)
+
+Set `useNewFrontendSystem: true` in **`configure()`** when tests must run against the **app-next** frontend (often called NFS in docs). Typical flow:
+
+```typescript
+await rhdh.configure({
+  auth: "keycloak",
+  useNewFrontendSystem: true,
+});
+await rhdh.deploy();
+```
+
+Do **not** rely on the worker fixture’s argument-free `configure()` call for this flag — pass it in `beforeAll` with the rest of your deployment options **before** `deploy()`, as you do for `auth` and custom config paths.
+
+What gets merged:
+
+1. **Secrets** — `APP_CONFIG_app_packageName: app-next` and `ENABLE_STANDARD_MODULE_FEDERATION: "true"` (workspace `rhdh-secrets.yaml` still supplies plugin-specific secrets).
+2. **Dynamic plugins** — Default OCI refs for `red-hat-developer-hub-backstage-plugin-app-auth` and `...-app-integrations`, overridable via `RHDH_E2E_NFS_APP_AUTH_PACKAGE` and `RHDH_E2E_NFS_APP_INTEGRATIONS_PACKAGE` (full `oci://` URIs).
+3. **Helm** — Package merge layer `config/helm/value_file.new-frontend.yaml` (shipped with the package), then your `value_file.yaml`, then optional `tests/config/value_file-app-next.yaml` when that file exists.
+
+Workspace-specific **app-config** (titles, plugin routes, etc.) remains your responsibility.
 
 ### Example: Full Configuration
 
@@ -114,12 +138,13 @@ await rhdh.deploy({ timeout: null });
 
 This method:
 1. Merges configuration files (common → auth → project)
-2. [Injects plugin metadata](/guide/configuration/config-files#plugin-metadata-injection) into dynamic plugins config
-3. Applies ConfigMaps (app-config, dynamic-plugins)
-4. Applies Secrets (with environment variable substitution)
-5. Installs RHDH via Helm or Operator
-6. Waits for the deployment to be ready
-7. Sets `RHDH_BASE_URL` environment variable
+2. Optionally applies **new frontend system** merges when [`useNewFrontendSystem`](#deploymentoptions) was set on `configure()` (secrets, optional OCI shell plugins, Helm layers)
+3. [Injects plugin metadata](/guide/configuration/config-files#plugin-metadata-injection) into dynamic plugins config
+4. Applies ConfigMaps (app-config, dynamic-plugins)
+5. Applies Secrets (with environment variable substitution)
+6. Installs RHDH via Helm or Operator
+7. Waits for the deployment to be ready
+8. Sets `RHDH_BASE_URL` environment variable
 
 #### Base URL format
 

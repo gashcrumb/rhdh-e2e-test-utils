@@ -12,6 +12,8 @@ export type DeploymentOptions = {
   valueFile?: string;
   subscription?: string;
   disableWrappers?: string[];
+  /** When true, merge app-next shell env, OCI app-auth/app-integrations plugins, and optional Helm layers. */
+  useNewFrontendSystem?: boolean;
 };
 
 export type HelmDeploymentConfig = {
@@ -32,6 +34,8 @@ export type DeploymentConfigBase = {
   secrets: string;
   dynamicPlugins: string;
   disableWrappers: string[];
+  /** New frontend system (Backstage app-next / NFS shell). */
+  useNewFrontendSystem: boolean;
 };
 
 export type DeploymentConfig = DeploymentConfigBase &

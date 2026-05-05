@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.37] - Current
+## [1.1.38] - Current
+
+### Added
+
+- **`useNewFrontendSystem`** — Optional flag on `rhdh.configure()` for Backstage **app-next** / new frontend system tests: merges `APP_CONFIG_app_packageName` and `ENABLE_STANDARD_MODULE_FEDERATION` into `rhdh-secrets`, adds default OCI dynamic plugins for **app-auth** and **app-integrations**, optional Helm merge layers (`value_file.new-frontend.yaml`, workspace `tests/config/value_file-app-next.yaml`). Env overrides: `RHDH_E2E_NFS_APP_AUTH_PACKAGE`, `RHDH_E2E_NFS_APP_INTEGRATIONS_PACKAGE` (full `oci://` refs). Exported constants `RHDH_E2E_NFS_APP_AUTH_PACKAGE_ENV` and `RHDH_E2E_NFS_APP_INTEGRATIONS_PACKAGE_ENV`. Types re-exported from `@red-hat-developer-hub/e2e-test-utils/rhdh`.
+
+## [1.1.37]
 
 ### Added
 

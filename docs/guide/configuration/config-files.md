@@ -46,6 +46,10 @@ catalog:
 
 Configure dynamic plugins:
 
+::: tip `useNewFrontendSystem`
+If you run against the **app-next** shell, set `useNewFrontendSystem: true` on [`configure()`](/guide/deployment/rhdh-deployment#new-frontend-system-usenewfrontendsystem) so the package merges default **app-auth** and **app-integrations** OCI plugins (and optional [env overrides](/guide/configuration/environment-variables#new-frontend-system-app-next-shell-plugins)). You can then omit those entries from this file when the defaults match your train.
+:::
+
 ```yaml
 includes:
   - dynamic-plugins.default.yaml

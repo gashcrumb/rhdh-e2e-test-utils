@@ -22,6 +22,7 @@ import {
   AUTH_CONFIG_PATHS,
   CHART_URL,
 } from "./constants.js";
+import { loadNewFrontendShellPlugins } from "./new-frontend-system-plugins.js";
 import type {
   DeploymentOptions,
   DeploymentConfig,
@@ -114,9 +115,17 @@ export class RHDHDeployment {
       if (typeof value === "string") return envsubst(value);
     });
 
+    let secretPayload = substituted as Record<string, unknown>;
+    if (this.deploymentConfig.useNewFrontendSystem) {
+      const nfsSecrets = await mergeYamlFilesIfExists([
+        DEFAULT_CONFIG_PATHS.newFrontendSystem.secrets,
+      ]);
+      secretPayload = deepMerge(secretPayload, nfsSecrets);
+    }
+
     await this.k8sClient.applySecretFromObject(
       "rhdh-secrets",
-      substituted as { stringData?: Record<string, string> },
+      secretPayload as { stringData?: Record<string, string> },
       this.deploymentConfig.namespace,
     );
   }
@@ -192,6 +201,20 @@ export class RHDHDeployment {
       config = await this._mergeGeneratedWithBase(generated);
     }
 
+    if (this.deploymentConfig.useNewFrontendSystem) {
+      const nfsPlugins = loadNewFrontendShellPlugins() as Record<
+        string,
+        unknown
+      >;
+      config = deepMerge(config, nfsPlugins, {
+        arrayMergeStrategy: {
+          byKey: "package",
+          normalizeKey: (item) =>
+            getNormalizedPluginMergeKey(item as Record<string, unknown>),
+        },
+      });
+    }
+
     // Process for deployment: inject metadata (PR only) + resolve all packages to OCI
     let result = await processPluginsForDeployment(
       config as DynamicPluginsConfig,
@@ -224,10 +247,20 @@ export class RHDHDeployment {
       this.deploymentConfig.version,
     );
     this._log(`Helm chart version resolved to: ${chartVersion}`);
-    const valueFileObject = (await mergeYamlFilesIfExists([
+    const helmValuePaths = [
       DEFAULT_CONFIG_PATHS.helm.valueFile,
+      ...(this.deploymentConfig.useNewFrontendSystem
+        ? [DEFAULT_CONFIG_PATHS.helm.valueFileNewFrontend]
+        : []),
       valueFile,
-    ])) as Record<string, Record<string, unknown>>;
+      ...(this.deploymentConfig.useNewFrontendSystem &&
+      fs.existsSync(WorkspacePaths.valueFileAppNext)
+        ? [WorkspacePaths.valueFileAppNext]
+        : []),
+    ];
+    const valueFileObject = (await mergeYamlFilesIfExists(
+      helmValuePaths,
+    )) as Record<string, Record<string, unknown>>;
 
     this._logBoxen("Value File", valueFileObject);
 
@@ -513,6 +546,7 @@ export class RHDHDeployment {
       secrets: input.secrets ?? WorkspacePaths.secrets,
       dynamicPlugins: input.dynamicPlugins ?? WorkspacePaths.dynamicPlugins,
       disableWrappers: input.disableWrappers ?? [],
+      useNewFrontendSystem: input.useNewFrontendSystem ?? false,
     };
 
     if (method === "helm") {

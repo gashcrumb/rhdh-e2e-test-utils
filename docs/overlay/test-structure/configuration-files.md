@@ -27,10 +27,22 @@ tests/config/
 ├── rhdh-secrets.yaml       # Kubernetes secrets (optional)
 ├── dynamic-plugins.yaml    # Dynamic plugins (optional - usually not needed)
 ├── value_file.yaml         # Helm values override (optional, Helm only)
+├── value_file-app-next.yaml # Extra Helm values when useNewFrontendSystem is true (optional)
 └── subscription.yaml       # Operator subscription (optional, Operator only)
 ```
 
 **All of these files are optional.** Only create them when you need to override or extend defaults.
+
+## `useNewFrontendSystem` (app-next / NFS)
+
+When you pass `useNewFrontendSystem: true` to [`configure()`](/guide/deployment/rhdh-deployment#configureoptions), `@red-hat-developer-hub/e2e-test-utils` merges:
+
+- **Secrets** — `APP_CONFIG_app_packageName=app-next` and `ENABLE_STANDARD_MODULE_FEDERATION=true` into the `rhdh-secrets` Secret (you no longer need duplicate keys in a separate `rhdh-secrets-next.yaml` for that).
+- **Dynamic plugins** — Default OCI entries for **app-auth** and **app-integrations**, overridable via `RHDH_E2E_NFS_APP_AUTH_PACKAGE` / `RHDH_E2E_NFS_APP_INTEGRATIONS_PACKAGE` ([guide](/guide/configuration/environment-variables#new-frontend-system-app-next-shell-plugins)).
+
+You can **remove** hand-maintained `app-auth` / `app-integrations` lines from `dynamic-plugins.yaml` when the framework supplies them. Keep workspace-only plugins and metadata-driven config as today.
+
+Optional **`value_file-app-next.yaml`** is merged last when `useNewFrontendSystem` is true and the file exists — use for chart tweaks specific to app-next runs.
 
 ## app-config-rhdh.yaml (Optional)
 

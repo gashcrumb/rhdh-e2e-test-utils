@@ -48,6 +48,19 @@ These control automatic plugin configuration injection from metadata files:
 | `JOB_NAME` | CI job name (set by OpenShift CI/Prow) | If contains `periodic-`, injection is disabled |
 | `JOB_MODE` | CI-only: `nightly` or `pr-check` (set by step registry) | Informational |
 
+## New frontend system (app-next shell plugins)
+
+When [`useNewFrontendSystem`](/guide/deployment/rhdh-deployment#new-frontend-system-usenewfrontendsystem) is `true`, the package adds default OCI packages for **app-auth** and **app-integrations**. You can override each with a **full** `oci://` reference (optional):
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `RHDH_E2E_NFS_APP_AUTH_PACKAGE` | Full `oci://` package ref for `red-hat-developer-hub-backstage-plugin-app-auth` | Baked default in package YAML |
+| `RHDH_E2E_NFS_APP_INTEGRATIONS_PACKAGE` | Full `oci://` package ref for `red-hat-developer-hub-backstage-plugin-app-integrations` | Baked default in package YAML |
+
+If an env var is **unset**, the default ref from the package is used. If set, it **replaces** that plugin entry (useful in CI to pin versions without publishing a new `@red-hat-developer-hub/e2e-test-utils` release).
+
+Constants matching these names are exported as `RHDH_E2E_NFS_APP_AUTH_PACKAGE_ENV` and `RHDH_E2E_NFS_APP_INTEGRATIONS_PACKAGE_ENV` from `@red-hat-developer-hub/e2e-test-utils/rhdh`.
+
 ### OCI URL Generation
 
 When `GIT_PR_NUMBER` is set, the package replaces local plugin paths with OCI URLs:

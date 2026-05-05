@@ -42,6 +42,17 @@ See [Running Locally - Secrets from Vault](/overlay/tutorials/running-locally#se
 | `INSTALLATION_METHOD` | Deployment method: `helm` or `operator` | `helm` | No |
 | `CHART_URL` | Custom Helm chart URL | `oci://quay.io/rhdh/chart` | No |
 
+### New frontend system (optional OCI overrides)
+
+Used when tests call `configure({ useNewFrontendSystem: true })`. Same semantics as the [guide environment reference](/guide/configuration/environment-variables#new-frontend-system-app-next-shell-plugins): full `oci://` refs; unset keeps package defaults.
+
+| Variable | Description |
+|----------|-------------|
+| `RHDH_E2E_NFS_APP_AUTH_PACKAGE` | Override default OCI ref for app-auth |
+| `RHDH_E2E_NFS_APP_INTEGRATIONS_PACKAGE` | Override default OCI ref for app-integrations |
+
+Set these in Vault or CI job env when you need to pin shell plugin versions per pipeline.
+
 ### Cluster Configuration
 
 | Variable | Description | Default | Required |
