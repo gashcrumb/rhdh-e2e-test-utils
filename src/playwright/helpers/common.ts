@@ -61,7 +61,7 @@ export class LoginHelper {
 
     await this.page.click('[value="Sign in"]');
     await this.page.fill("#app_totp", this.getGitHub2FAOTP(userid));
-    test.setTimeout(130000);
+    test.setTimeout(260_000);
     if (
       (await this.uiHelper.isTextVisible(
         "The two-factor code you entered has already been used",
@@ -75,7 +75,9 @@ export class LoginHelper {
       await this.page.fill("#app_totp", this.getGitHub2FAOTP(userid));
     }
 
-    await this.page.waitForTimeout(3_000);
+    await this.page
+      .getByRole("heading", { name: "Home" })
+      .waitFor({ timeout: 30_000 });
   }
 
   async logintoKeycloak(popup: Page, userid: string, password: string) {
@@ -114,7 +116,30 @@ export class LoginHelper {
       await this.page.goto("/");
       await this.uiHelper.waitForLoad(12000);
       await this.uiHelper.clickButton("Sign In");
-      await this.checkAndReauthorizeGithubApp();
+
+      // Wait for either: sidebar appears (auto-login) or popup opens (needs auth)
+      const navPromise = this.page
+        .waitForSelector("nav a", { timeout: 15_000 })
+        .then(() => "nav" as const)
+        .catch(() => null);
+
+      const popupPromise = this.page
+        .waitForEvent("popup", { timeout: 15_000 })
+        .then((popup) => ({ popup }))
+        .catch(() => null);
+
+      const result = await Promise.race([navPromise, popupPromise]);
+
+      if (result === null) {
+        throw new Error(
+          "GitHub login failed: neither sidebar nor popup appeared after Sign In — session file may be stale",
+        );
+      }
+
+      if (typeof result === "object" && "popup" in result) {
+        // Popup opened — handle reauthorization
+        await this.handleGithubPopupReauth(result.popup);
+      }
     } else {
       // Perform login if no session file exists, then save the state
       await this.logintoGithub(userid);
@@ -131,22 +156,26 @@ export class LoginHelper {
   async checkAndReauthorizeGithubApp() {
     await new Promise<void>((resolve) => {
       this.page.once("popup", async (popup) => {
-        await popup.waitForLoadState();
-
-        // Check for popup closure for up to 10 seconds before proceeding
-        for (let attempts = 0; attempts < 10 && !popup.isClosed(); attempts++) {
-          await this.page.waitForTimeout(1000); // Using page here because if the popup closes automatically, it throws an error during the wait
-        }
-
-        const locator = popup.locator("button.js-oauth-authorize-btn");
-        if (!popup.isClosed() && (await locator.isVisible())) {
-          await popup.locator("body").click();
-          await locator.waitFor();
-          await locator.click();
-        }
+        await this.handleGithubPopupReauth(popup);
         resolve();
       });
     });
+  }
+
+  private async handleGithubPopupReauth(popup: Page) {
+    await popup.waitForLoadState();
+
+    // Check for popup closure for up to 10 seconds before proceeding
+    for (let attempts = 0; attempts < 10 && !popup.isClosed(); attempts++) {
+      await this.page.waitForTimeout(1000); // Using page here because if the popup closes automatically, it throws an error during the wait
+    }
+
+    const locator = popup.locator("button.js-oauth-authorize-btn");
+    if (!popup.isClosed() && (await locator.isVisible())) {
+      await popup.locator("body").click();
+      await locator.waitFor();
+      await locator.click();
+    }
   }
 
   async googleSignIn(email: string) {
