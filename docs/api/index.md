@@ -35,6 +35,11 @@ Complete API documentation for all exports from `@red-hat-developer-hub/e2e-test
 - [UIhelper](/api/helpers/ui-helper) - UI interaction methods
 - [LoginHelper](/api/helpers/login-helper) - Authentication methods
 - [APIHelper](/api/helpers/api-helper) - API interaction methods
+- [AuthApiHelper](/api/helpers/auth-api-helper) - Backstage identity tokens
+- [`getSessionAuthToken`](/api/helpers/auth-api-helper#getsessionauthtoken) - Resilient token retrieval
+- [CatalogApiHelper](/api/helpers/catalog-api-helper) - Catalog REST polling
+- [RhdhNotificationsApi](/api/helpers/notifications-api-helper) - Notifications REST API
+- [RbacApiHelper](/api/helpers/rbac-api-helper) - RBAC policy management
 
 ### Page Objects
 

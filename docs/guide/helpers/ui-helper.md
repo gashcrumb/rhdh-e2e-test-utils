@@ -1,6 +1,6 @@
 # UIhelper
 
-The `UIhelper` class provides methods for interacting with Material-UI components in RHDH.
+The `UIhelper` class provides methods for interacting with RHDH UI components. Button and wait helpers support both **Material-UI (MUI)** and **Backstage UI (BUI)** selectors.
 
 ## Getting UIhelper
 
@@ -20,14 +20,17 @@ const uiHelper = new UIhelper(page);
 
 ## Wait Operations
 
-### `waitForLoad(timeout?)`
+### `waitForLoad(timeout?)` / `waitForAppReady(timeout?)`
 
-Wait for the page to fully load:
+Wait for MUI and BUI loading indicators to disappear (linear progress bars, circular spinners, button spinners). `waitForAppReady` is an alias for `waitForLoad` — use either name; prefer `waitForAppReady` in new tests for clarity.
 
 ```typescript
 await uiHelper.waitForLoad();
-await uiHelper.waitForLoad(10000); // Custom timeout
+await uiHelper.waitForAppReady();
+await uiHelper.waitForAppReady(10_000); // Custom timeout (ms)
 ```
+
+On instances using the new frontend system (BUI), `waitForLoad` waits for both legacy MUI selectors and BUI `[role="progressbar"]` / spinner elements.
 
 ### `dismissQuickstartIfVisible(options?)`
 

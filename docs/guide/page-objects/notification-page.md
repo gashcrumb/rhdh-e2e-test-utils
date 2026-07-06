@@ -1,99 +1,101 @@
 # NotificationPage
 
-The `NotificationPage` class provides methods for managing notifications in RHDH.
+The `NotificationPage` class provides methods for managing notifications in RHDH. Selectors support both **MUI** (legacy) and **BUI** (new frontend system) — the page object tries each approach automatically.
 
 ## Usage
 
 ```typescript
 import { NotificationPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
+// Default: creates an internal UIhelper
 const notificationPage = new NotificationPage(page);
+
+// Optional: pass the fixture UIhelper (recommended in fixture-based tests)
+const notificationPage = new NotificationPage(page, uiHelper);
 ```
 
 ## Methods
 
-### `clickNotificationsNavBarItem()`
+### `navigateToNotifications()`
 
-Navigate to notifications via the navbar:
+Navigate to the notifications page via the sidebar (with `/notifications` fallback), dismiss toasts, and wait until the page is ready:
 
 ```typescript
-await notificationPage.clickNotificationsNavBarItem();
+await notificationPage.navigateToNotifications();
 ```
 
 ### `notificationContains(text)`
 
-Check if a notification contains specific text:
+Verify a notification row contains specific text (expands to 20 rows per page when needed):
 
 ```typescript
 await notificationPage.notificationContains("Build completed");
-await notificationPage.notificationContains("Entity updated");
+await notificationPage.notificationContains(/Pipeline.*succeeded/);
 ```
 
-### `markAllNotificationsAsRead()`
+### `selectNotification(textOrNth?)`
 
-Mark all notifications as read:
+Select a notification by row title or by checkbox index:
+
+```typescript
+await notificationPage.selectNotification("Build completed");
+await notificationPage.selectNotification(/alert/i);
+await notificationPage.selectNotification(0); // legacy index-based selection
+```
+
+### `selectAllNotifications()`
+
+Select all notifications using the header checkbox:
+
+```typescript
+await notificationPage.selectAllNotifications();
+```
+
+### `markAllNotificationsAsRead()` / `markLastNotificationAsRead()` / `markNotificationAsRead(text)`
+
+Mark notifications as read:
 
 ```typescript
 await notificationPage.markAllNotificationsAsRead();
+await notificationPage.markLastNotificationAsRead();
+await notificationPage.markNotificationAsRead("Build completed");
 ```
 
-### `selectSeverity(severity)`
+### `selectSeverity(severity?)`
 
-Filter notifications by severity:
+Filter notifications by severity (`critical`, `high`, `normal`, `low`):
 
 ```typescript
 await notificationPage.selectSeverity("critical");
-await notificationPage.selectSeverity("high");
-await notificationPage.selectSeverity("normal");
-await notificationPage.selectSeverity("low");
+await notificationPage.selectSeverity(""); // clear filter
 ```
 
-### `viewSaved()`
+### `viewSaved()` / `viewRead()` / `viewUnRead()`
 
-View saved/bookmarked notifications:
+Switch notification list views:
 
 ```typescript
 await notificationPage.viewSaved();
+await notificationPage.viewRead();
+await notificationPage.viewUnRead();
 ```
 
-### `viewAll()`
+### `sortByNewestOnTop()` / `sortByOldestOnTop()`
 
-View all notifications:
-
-```typescript
-await notificationPage.viewAll();
-```
-
-### `sortByNewestOnTop()`
-
-Sort notifications with newest first:
+Change sort order:
 
 ```typescript
 await notificationPage.sortByNewestOnTop();
-```
-
-### `sortByOldestOnTop()`
-
-Sort notifications with oldest first:
-
-```typescript
 await notificationPage.sortByOldestOnTop();
 ```
 
-### `saveNotification(index)`
+### `saveSelected()` / `saveAllSelected()`
 
-Save/bookmark a notification:
-
-```typescript
-await notificationPage.saveNotification(0); // Save first notification
-```
-
-### `deleteNotification(index)`
-
-Delete a notification:
+Save selected notifications for later:
 
 ```typescript
-await notificationPage.deleteNotification(0); // Delete first notification
+await notificationPage.selectNotification("Important alert");
+await notificationPage.saveSelected();
 ```
 
 ## Complete Example
@@ -101,34 +103,33 @@ await notificationPage.deleteNotification(0); // Delete first notification
 ```typescript
 import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 import { NotificationPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
+import { RhdhNotificationsApi } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
-test("manage notifications", async ({ page, loginHelper }) => {
+test("manage notifications", async ({ page, loginHelper, uiHelper }) => {
   await loginHelper.loginAsKeycloakUser();
 
-  const notificationPage = new NotificationPage(page);
+  const title = `e2e-${Date.now()}`;
+  const api = await RhdhNotificationsApi.build("test-token");
+  const response = await api.createNotification({
+    recipients: { type: "broadcast" },
+    payload: {
+      title,
+      description: "Test notification",
+      severity: "high",
+      topic: "e2e",
+    },
+  });
+  expect(response.ok()).toBeTruthy();
 
-  // Navigate to notifications
-  await notificationPage.clickNotificationsNavBarItem();
-
-  // Filter by severity
-  await notificationPage.selectSeverity("critical");
-
-  // Check for specific notification
-  await notificationPage.notificationContains("Critical alert");
-
-  // Sort by newest
-  await notificationPage.sortByNewestOnTop();
-
-  // Save important notification
-  await notificationPage.saveNotification(0);
-
-  // View saved notifications
-  await notificationPage.viewSaved();
-
-  // Mark all as read
-  await notificationPage.markAllNotificationsAsRead();
-
-  // View all again
-  await notificationPage.viewAll();
+  const notificationPage = new NotificationPage(page, uiHelper);
+  await notificationPage.navigateToNotifications();
+  await notificationPage.selectSeverity("high");
+  await notificationPage.notificationContains(title);
+  await notificationPage.markNotificationAsRead(title);
 });
 ```
+
+## Related Pages
+
+- [RhdhNotificationsApi](/guide/helpers/notifications-api-helper) — create notifications via REST API
+- [UIhelper](/guide/helpers/ui-helper) — underlying wait and navigation helpers

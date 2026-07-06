@@ -1,6 +1,6 @@
 # UIhelper API
 
-UI interaction helper for Material-UI components.
+UI interaction helper for RHDH components (MUI and BUI).
 
 ## Import
 
@@ -22,7 +22,13 @@ new UIhelper(page: Page)
 ```typescript
 async waitForLoad(timeout?: number): Promise<void>
 ```
-Wait for page to fully load.
+Wait for MUI and BUI loading indicators to clear. Default timeout: `120000` ms.
+
+#### `waitForAppReady()`
+```typescript
+async waitForAppReady(timeout?: number): Promise<void>
+```
+Alias for `waitForLoad()`.
 
 #### `dismissQuickstartIfVisible()`
 ```typescript
