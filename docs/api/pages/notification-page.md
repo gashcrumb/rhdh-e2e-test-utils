@@ -11,26 +11,29 @@ import { NotificationPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 ## Constructor
 
 ```typescript
-new NotificationPage(page: Page)
+new NotificationPage(page: Page, uiHelper?: UIhelper)
 ```
 
-Creates a new NotificationPage instance with an internal `UIhelper`.
+Creates a new NotificationPage instance. When `uiHelper` is omitted, an internal `UIhelper` is created.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `page` | `Page` | Playwright Page object |
+| `uiHelper` | `UIhelper` | Optional fixture UIhelper for shared wait/navigation behavior |
+
+Supports both MUI (legacy) and BUI (new frontend system) selectors.
 
 ## Methods
 
 ### Navigation
 
-#### `clickNotificationsNavBarItem()`
+#### `navigateToNotifications()`
 
 ```typescript
-async clickNotificationsNavBarItem(): Promise<void>
+async navigateToNotifications(): Promise<void>
 ```
 
-Navigate to the notifications page via the sidebar and wait for it to load.
+Navigate to the notifications page via the sidebar (with `/notifications` fallback), dismiss toasts, and wait until the page is ready.
 
 ### Notification Selection
 
@@ -42,17 +45,20 @@ async selectAllNotifications(): Promise<void>
 
 Select all notifications using the header checkbox.
 
-#### `selectNotification(nth?)`
+#### `selectNotification(textOrNth?)`
 
 ```typescript
-async selectNotification(nth?: number): Promise<void>
+async selectNotification(
+  textOrNth?: string | RegExp | number,
+): Promise<void>
 ```
 
-Select a specific notification by index.
+Select a notification by row title or by checkbox index.
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `nth` | `number` | `1` | Zero-based index of the notification to select |
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `textOrNth` | `string \| RegExp` | Row title to select (preferred) |
+| `textOrNth` | `number` | Zero-based checkbox index (legacy) |
 
 ### Notification Content
 
@@ -208,7 +214,7 @@ test("manage notifications", async ({ page }) => {
   const notificationPage = new NotificationPage(page);
 
   // Navigate to notifications
-  await notificationPage.clickNotificationsNavBarItem();
+  await notificationPage.navigateToNotifications();
 
   // Check for a specific notification
   await notificationPage.notificationContains("Build completed successfully");
@@ -234,7 +240,7 @@ test("manage notifications", async ({ page }) => {
 test("clear all notifications", async ({ page }) => {
   const notificationPage = new NotificationPage(page);
 
-  await notificationPage.clickNotificationsNavBarItem();
+  await notificationPage.navigateToNotifications();
   await notificationPage.markAllNotificationsAsRead();
 });
 ```

@@ -37,6 +37,7 @@ Provides methods for interacting with Material-UI components in RHDH:
 ```typescript
 // Wait and verify
 await uiHelper.waitForLoad();
+await uiHelper.waitForAppReady();
 await uiHelper.verifyHeading("Catalog");
 await uiHelper.verifyText("Welcome to RHDH");
 
@@ -116,6 +117,58 @@ const token = await authApiHelper.getToken("github");
 
 [Learn more about AuthApiHelper →](/guide/helpers/auth-api-helper)
 
+## CatalogApiHelper
+
+Static catalog REST helper for event-driven discovery tests:
+
+```typescript
+import {
+  CatalogApiHelper,
+  getSessionAuthToken,
+} from "@red-hat-developer-hub/e2e-test-utils/helpers";
+
+const token = await getSessionAuthToken(page, uiHelper, process.env.RHDH_BASE_URL!);
+
+const exists = await CatalogApiHelper.entityExists(
+  process.env.RHDH_BASE_URL!,
+  token,
+  "component",
+  "my-service",
+);
+
+const description = await CatalogApiHelper.getEntityDescription(
+  process.env.RHDH_BASE_URL!,
+  token,
+  "component",
+  "my-service",
+);
+
+await CatalogApiHelper.dispose();
+```
+
+[Learn more about CatalogApiHelper →](/guide/helpers/catalog-api-helper)
+
+## RhdhNotificationsApi
+
+Typed REST helper for creating and updating notifications:
+
+```typescript
+import { RhdhNotificationsApi } from "@red-hat-developer-hub/e2e-test-utils/helpers";
+
+const api = await RhdhNotificationsApi.build("test-token");
+await api.createNotification({
+  recipients: { type: "broadcast" },
+  payload: {
+    title: "Test",
+    description: "From E2E",
+    severity: "normal",
+    topic: "e2e",
+  },
+});
+```
+
+[Learn more about RhdhNotificationsApi →](/guide/helpers/notifications-api-helper)
+
 ## RbacApiHelper
 
 Manages RBAC roles and policies via the RHDH Permission API. Built with an async factory method that requires a Backstage identity token:
@@ -173,10 +226,13 @@ test("first test", async () => {
 | Scenario | Helper |
 |----------|--------|
 | Click buttons, verify text | UIhelper |
+| Wait for MUI/BUI loading to finish | UIhelper (`waitForAppReady`) |
 | Login/logout operations | LoginHelper |
 | Create GitHub repos | APIHelper |
-| Query Backstage catalog | APIHelper |
+| Query Backstage catalog (instance API) | APIHelper |
+| Poll catalog entities by REST | CatalogApiHelper |
+| Create notifications via API | RhdhNotificationsApi |
 | Interact with tables | UIhelper |
 | Fill forms | UIhelper |
-| Retrieve a Backstage identity token | AuthApiHelper |
+| Retrieve a Backstage identity token | AuthApiHelper or `getSessionAuthToken` |
 | Clean up RBAC roles/policies after tests | RbacApiHelper |

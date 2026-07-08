@@ -51,3 +51,28 @@ const token = await authApiHelper.getToken();
 // Custom provider
 const token = await authApiHelper.getToken('github');
 ```
+
+## `getSessionAuthToken()`
+
+```typescript
+async function getSessionAuthToken(
+  page: Page,
+  uiHelper: UIhelper,
+  baseUrl: string,
+): Promise<string>
+```
+
+Polls `AuthApiHelper.getToken()` until a non-empty token is returned. Navigates to `baseUrl` and calls `uiHelper.waitForAppReady()` when the first attempt fails.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `page` | `Page` | Authenticated Playwright page |
+| `uiHelper` | `UIhelper` | Used for `waitForAppReady()` after navigation |
+| `baseUrl` | `string` | RHDH base URL (e.g. `process.env.RHDH_BASE_URL`) |
+
+**Returns** `Promise<string>` — Backstage identity bearer token.
+
+## Related Pages
+
+- [AuthApiHelper Guide](/guide/helpers/auth-api-helper) — usage guide
+- [CatalogApiHelper](/api/helpers/catalog-api-helper) — typical consumer of session tokens

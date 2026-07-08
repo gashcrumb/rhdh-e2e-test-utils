@@ -1,6 +1,10 @@
 export const WAIT_OBJECTS = {
   MuiLinearProgress: 'div[class*="MuiLinearProgress-root"]',
   MuiCircularProgress: '[class*="MuiCircularProgress-root"]',
+  /** Backstage UI (BUI) — additive so MUI and BUI apps both settle before assertions */
+  progressBar: '[role="progressbar"]',
+  buttonSpinner: ".bui-ButtonSpinner, .bui-ButtonIconSpinner",
+  alertSpinner: ".bui-AlertSpinner",
 };
 
 export const UI_HELPER_ELEMENTS = {

@@ -155,7 +155,7 @@ oc login --token=<token> --server=<server>
   ```
 - Verify page loaded:
   ```typescript
-  await uiHelper.waitForLoad();
+  await uiHelper.waitForAppReady();
   ```
 
 ### "Timeout waiting for selector"
@@ -188,6 +188,17 @@ oc login --token=<token> --server=<server>
   ```typescript
   await page.waitForLoadState("networkidle");
   ```
+
+### Page stuck on loading spinner (BUI)
+
+**Problem:** Tests time out while a progress bar or button spinner stays visible on the new frontend system.
+
+**Solutions:**
+- Wait for MUI and BUI indicators to clear:
+  ```typescript
+  await uiHelper.waitForAppReady();
+  ```
+- After login or `page.goto()`, call `waitForAppReady()` before interacting with sidebar or catalog content.
 
 ## Environment Variable Issues
 

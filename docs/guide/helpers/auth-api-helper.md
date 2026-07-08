@@ -75,7 +75,35 @@ try {
 
 ## Related Pages
 
+- [getSessionAuthToken](#getsessionauthtoken) — resilient token retrieval after login
 - [RbacApiHelper](/guide/helpers/rbac-api-helper) — uses tokens obtained from `AuthApiHelper`
 - [LoginHelper](/guide/helpers/login-helper) — authenticates the browser session before calling `getToken`
+- [CatalogApiHelper](/guide/helpers/catalog-api-helper) — catalog REST queries with a bearer token
 - [APIHelper](/guide/helpers/api-helper) — catalog and GitHub API operations
 - [Common Patterns](/overlay/reference/patterns#fetching-a-token-to-use-with-rbacapihelper) — example of using `getToken` with `RbacApiHelper`
+
+## `getSessionAuthToken(page, uiHelper, baseUrl)`
+
+Standalone function that retrieves a Backstage bearer token from the logged-in browser session. Unlike calling `AuthApiHelper.getToken()` directly, it polls until a token is available and navigates to `baseUrl` only when the first attempt fails.
+
+```typescript
+import {
+  AuthApiHelper,
+  getSessionAuthToken,
+} from "@red-hat-developer-hub/e2e-test-utils/helpers";
+
+test.beforeEach(async ({ page, uiHelper, loginHelper }) => {
+  await loginHelper.loginAsKeycloakUser();
+});
+
+test("catalog API", async ({ page, uiHelper }) => {
+  const token = await getSessionAuthToken(
+    page,
+    uiHelper,
+    process.env.RHDH_BASE_URL!,
+  );
+  // use token with CatalogApiHelper, RbacApiHelper, etc.
+});
+```
+
+Use this in discovery tests that need a stable token after Keycloak login without duplicating retry logic in each workspace.

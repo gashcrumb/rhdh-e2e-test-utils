@@ -33,7 +33,7 @@ export default defineConfig({
       { text: "Examples", link: "/examples/" },
       { text: "Overlay Testing", link: "/overlay/" },
       {
-        text: "v1.1.39",
+        text: "v2.2.0",
         items: [{ text: "Changelog", link: "/changelog" }],
       },
     ],
@@ -121,6 +121,14 @@ export default defineConfig({
             { text: "LoginHelper", link: "/guide/helpers/login-helper" },
             { text: "APIHelper", link: "/guide/helpers/api-helper" },
             { text: "AuthApiHelper", link: "/guide/helpers/auth-api-helper" },
+            {
+              text: "CatalogApiHelper",
+              link: "/guide/helpers/catalog-api-helper",
+            },
+            {
+              text: "RhdhNotificationsApi",
+              link: "/guide/helpers/notifications-api-helper",
+            },
             { text: "RbacApiHelper", link: "/guide/helpers/rbac-api-helper" },
           ],
         },
@@ -227,6 +235,14 @@ export default defineConfig({
             { text: "LoginHelper", link: "/api/helpers/login-helper" },
             { text: "APIHelper", link: "/api/helpers/api-helper" },
             { text: "AuthApiHelper", link: "/api/helpers/auth-api-helper" },
+            {
+              text: "CatalogApiHelper",
+              link: "/api/helpers/catalog-api-helper",
+            },
+            {
+              text: "RhdhNotificationsApi",
+              link: "/api/helpers/notifications-api-helper",
+            },
             { text: "RbacApiHelper", link: "/api/helpers/rbac-api-helper" },
           ],
         },

@@ -2,7 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.1.1] - Current
+## [2.2.0] - Current
+
+### Added
+
+- **`UIhelper.waitForAppReady()`**: Waits for MUI and BUI loading indicators to clear (extends `WAIT_OBJECTS` with BUI progress/spinner selectors).
+- **`getSessionAuthToken()`**: Retrieves a bearer token from the logged-in browser session without unnecessary navigation.
+- **`CatalogApiHelper`**: Static catalog API helper (`entityExists`, `getEntity`, `getEntityDescription`, `getGroupMembers`) for event-driven discovery polling.
+- **`RhdhNotificationsApi`**: Typed notifications REST helper with valid broadcast/entity recipient shapes and lowercase severity values.
+
+### Changed
+
+- **`NotificationPage`**: Additive MUI + BUI support — tries legacy selectors (`loading-indicator`, `Severity`, `getByTitle`) and BUI selectors (`Min severity`, `aria-label` bulk actions, row checkboxes). Optional `uiHelper` constructor argument. `selectNotification` accepts a row title (`string`/`RegExp`) or legacy checkbox index (`number`). Renamed `clickNotificationsNavBarItem()` to `navigateToNotifications()`.
+- **`CatalogApiHelper.getGroupEntity()`**: Delegates to `getEntity()` instead of duplicating fetch logic.
+- **`UIhelper.openSidebar`**: Uses a real `.click()` instead of `dispatchEvent("click")` for more reliable navigation.
+
+## [2.1.1]
 
 ### Changed
 

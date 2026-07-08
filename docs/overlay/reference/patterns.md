@@ -58,6 +58,83 @@ test.describe('RBAC policy management', () => {
 });
 ```
 
+### Session Token with `getSessionAuthToken`
+
+For catalog polling and other REST helpers, use `getSessionAuthToken` after login. It retries token retrieval and only navigates when needed:
+
+```typescript
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
+import {
+  CatalogApiHelper,
+  getSessionAuthToken,
+} from "@red-hat-developer-hub/e2e-test-utils/helpers";
+
+test.describe("Webhook ingest", () => {
+  test.describe.configure({ timeout: 180_000 });
+
+  let catalogToken: string;
+
+  test.beforeEach(async ({ page, uiHelper, loginHelper }) => {
+    await loginHelper.loginAsKeycloakUser();
+    if (!catalogToken) {
+      catalogToken = await getSessionAuthToken(
+        page,
+        uiHelper,
+        process.env.RHDH_BASE_URL!,
+      );
+    }
+  });
+
+  test.afterAll(async () => {
+    await CatalogApiHelper.dispose();
+  });
+
+  test("entity appears after push", async () => {
+    // ... trigger webhook ...
+
+    await expect
+      .poll(
+        () =>
+          CatalogApiHelper.entityExists(
+            process.env.RHDH_BASE_URL!,
+            catalogToken,
+            "component",
+            "my-repo",
+          ),
+        { timeout: 150_000, intervals: [3_000] },
+      )
+      .toBe(true);
+  });
+});
+```
+
+When tests run via `run-e2e.sh`, the root Playwright config supplies a 90s default per-test timeout. Use `test.describe.configure({ timeout: ... })` at the suite level for long polling tests — workspace `playwright.config.ts` timeouts are not applied in CI.
+
+### Catalog Event Polling
+
+Prefer **catalog API polling** over reloading the UI to detect ingest completion:
+
+| Approach | When to use |
+|----------|-------------|
+| `CatalogApiHelper.entityExists` | Wait for create/delete |
+| `CatalogApiHelper.getEntityDescription` | Wait for metadata updates |
+| `expect.poll(...)` | Built-in Playwright retry with custom interval |
+
+```typescript
+await expect
+  .poll(
+    () =>
+      CatalogApiHelper.getEntityDescription(
+        baseUrl,
+        token,
+        "component",
+        "my-entity",
+      ),
+    { timeout: 120_000 },
+  )
+  .toContain("expected description");
+```
+
 ## Project and Spec Best Practices
 
 Each Playwright project name creates a **separate namespace**. To keep deployments fast and predictable:
@@ -241,6 +318,7 @@ await uiHelper.verifyRowInTableByUniqueText("Row 1", ["Column 1", "Column 2"]);
 
 ```typescript
 await uiHelper.waitForLoad();
+await uiHelper.waitForAppReady(); // same behavior; preferred on BUI instances
 ```
 
 ### Wait for Text

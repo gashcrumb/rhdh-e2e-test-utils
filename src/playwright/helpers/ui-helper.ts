@@ -23,6 +23,11 @@ export class UIhelper {
     }
   }
 
+  /** Wait for MUI and BUI loading indicators to clear. Alias for {@link waitForLoad}. */
+  async waitForAppReady(timeout = 120000) {
+    await this.waitForLoad(timeout);
+  }
+
   /**
    * Closes the quickstart drawer when the "Hide" button is visible (RHDH quickstart plugin),
    * so it does not cover catalog or other UI under test.
@@ -273,7 +278,7 @@ export class UIhelper {
       .locator(`nav a:has-text("${navBarText}")`)
       .first();
     await navLink.waitFor({ state: "visible", timeout: 15_000 });
-    await navLink.dispatchEvent("click");
+    await navLink.click();
   }
 
   async openCatalogSidebar(kind: string) {
