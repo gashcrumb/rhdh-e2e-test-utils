@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.1.2] - Current
+## [2.1.3] - Current
+
+### Fixed
+
+- **Keycloak auth profile missing `keycloakOrg` provider config**: The Keycloak auth `dynamic-plugins.yaml` enabled the catalog backend module but did not include `catalog.providers.keycloakOrg`. After overlays metadata/`dynamicArtifact` moved from local wrappers to OCI refs, the default plugins include no longer supplies that config on the same package path, so User entities were never ingested and OIDC sign-in failed with `unable to resolve user identity`. The auth profile now ships the provider config (same shape as package metadata `appConfigExamples`, with a 1-minute schedule suited to E2E).
+
+## [2.1.2]
 
 ### Fixed
 
