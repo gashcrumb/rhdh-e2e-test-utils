@@ -2,11 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.1.4] - Current
+## [2.1.5] - Current
 
 ### Fixed
 
 - **`dismissQuickstartIfVisible()` race after login**: The helper used an immediate `isVisible()` check, so it no-op'd when the Quickstart drawer mounted shortly after login. Later `waitForAppReady` / `waitForLoad` calls then timed out on the drawer's sticky `[role="progressbar"]`. The helper now waits briefly for the **Hide** button (`waitVisibleMs`, default `5000`) before clicking, and still returns quietly if Quickstart never appears.
+
+## [2.1.4]
 
 ### Changed
 
