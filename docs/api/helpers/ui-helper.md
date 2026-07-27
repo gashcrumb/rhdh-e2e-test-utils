@@ -33,10 +33,11 @@ Alias for `waitForLoad()`.
 #### `dismissQuickstartIfVisible()`
 ```typescript
 async dismissQuickstartIfVisible(options?: {
+  waitVisibleMs?: number;
   waitHiddenMs?: number;
 }): Promise<void>
 ```
-If the RHDH quickstart drawer is open, clicks its **Hide** button and waits for the control to disappear. Does nothing when the button is not visible. Use before catalog search or other UI that the drawer can cover. Default `waitHiddenMs` is `5000`.
+Waits briefly for the RHDH quickstart **Hide** button (`waitVisibleMs`, default `5000`), clicks it if it appears, then waits for it to disappear (`waitHiddenMs`, default `5000`). Returns quietly if Hide never shows. Call after login before `waitForAppReady` — the open drawer keeps a progressbar visible that would otherwise block app-ready waits.
 
 ### Verification Methods
 

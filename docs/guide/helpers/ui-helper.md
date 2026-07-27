@@ -34,14 +34,17 @@ On instances using the new frontend system (BUI), `waitForLoad` waits for both l
 
 ### `dismissQuickstartIfVisible(options?)`
 
-When the [quickstart](https://github.com/redhat-developer/rhdh-plugins/tree/main/workspaces/quickstart) plugin opens its drawer (for example after login), it can sit over the catalog, search field, or other controls. This method clicks **Hide** only if that button is visible, then waits for it to go away; otherwise it returns immediately.
+When the [quickstart](https://github.com/redhat-developer/rhdh-plugins/tree/main/workspaces/quickstart) plugin opens its drawer (for example after login), it can sit over the catalog, search field, or other controls — and its sticky progressbar blocks `waitForAppReady`. This method waits briefly for **Hide** to appear (`waitVisibleMs`, default `5000`), clicks it, then waits for it to go away (`waitHiddenMs`, default `5000`). If Hide never shows, it returns immediately.
 
 ```typescript
 await uiHelper.dismissQuickstartIfVisible();
-await uiHelper.dismissQuickstartIfVisible({ waitHiddenMs: 10_000 });
+await uiHelper.dismissQuickstartIfVisible({
+  waitVisibleMs: 10_000,
+  waitHiddenMs: 10_000,
+});
 ```
 
-Typical use is right after navigation or login, before assertions or interactions that need an unobstructed main view.
+Typical use is right after login, before `waitForAppReady` or assertions that need an unobstructed main view. Do not call `waitForAppReady` first — that wait includes the quickstart progressbar.
 
 ## Verification Methods
 

@@ -29,19 +29,34 @@ export class UIhelper {
   }
 
   /**
-   * Closes the quickstart drawer when the "Hide" button is visible (RHDH quickstart plugin),
-   * so it does not cover catalog or other UI under test.
+   * Closes the quickstart drawer when the "Hide" button appears (RHDH quickstart plugin),
+   * so it does not cover catalog or other UI under test / block waitForAppReady via its
+   * sticky progressbar. Waits briefly for Hide to mount (drawer often appears after login
+   * settles); returns without error if it never shows.
+   *
+   * Do not call waitForAppReady before this — that wait includes `[role="progressbar"]`,
+   * which the open quickstart drawer keeps visible until dismissed.
    */
-  async dismissQuickstartIfVisible(options?: { waitHiddenMs?: number }) {
+  async dismissQuickstartIfVisible(options?: {
+    waitVisibleMs?: number;
+    waitHiddenMs?: number;
+  }) {
+    const waitVisibleMs = options?.waitVisibleMs ?? 5000;
     const waitHiddenMs = options?.waitHiddenMs ?? 5000;
     const quickstartHide = this.page.getByRole("button", { name: "Hide" });
-    if (await quickstartHide.isVisible()) {
-      await quickstartHide.click();
+    try {
       await quickstartHide.waitFor({
-        state: "hidden",
-        timeout: waitHiddenMs,
+        state: "visible",
+        timeout: waitVisibleMs,
       });
+    } catch {
+      return;
     }
+    await quickstartHide.click();
+    await quickstartHide.waitFor({
+      state: "hidden",
+      timeout: waitHiddenMs,
+    });
   }
 
   async verifyComponentInCatalog(kind: string, expectedRows: string[]) {

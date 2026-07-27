@@ -284,10 +284,11 @@ await uiHelper.selectMuiBox("Category", "Option 1");
 
 ### Dismiss quickstart drawer
 
-When the RHDH quickstart plugin shows its drawer, it can cover catalog search and other controls. Call this after login or navigation if needed (it is a no-op when **Hide** is not visible):
+When the RHDH quickstart plugin shows its drawer, it can cover catalog search and other controls — and its progressbar blocks `waitForAppReady`. Call this after login (it waits briefly for **Hide**, then no-ops if the drawer never appears). Call it *before* `waitForAppReady`:
 
 ```typescript
 await uiHelper.dismissQuickstartIfVisible();
+await uiHelper.waitForAppReady();
 ```
 
 See [UIhelper](/guide/helpers/ui-helper) and [UIhelper API](/api/helpers/ui-helper).
