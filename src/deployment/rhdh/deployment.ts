@@ -105,9 +105,6 @@ export class RHDHDeployment {
     const secretsPaths = [
       DEFAULT_CONFIG_PATHS.secrets,
       authConfig.secrets,
-      ...(this.deploymentConfig.useNewFrontendSystem
-        ? [DEFAULT_CONFIG_PATHS.newFrontendSystem.secrets]
-        : []),
       this.deploymentConfig.secrets,
     ];
     const secretsYaml = await mergeYamlFilesIfExists(secretsPaths);
