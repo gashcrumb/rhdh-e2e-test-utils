@@ -27,21 +27,16 @@ tests/config/
 ├── rhdh-secrets.yaml       # Kubernetes secrets (optional)
 ├── dynamic-plugins.yaml    # Dynamic plugins (optional - usually not needed)
 ├── value_file.yaml         # Helm values override (optional, Helm only)
-├── value_file-app-next.yaml # Extra Helm values when new frontend system is active (optional)
 └── subscription.yaml       # Operator subscription (optional, Operator only)
 ```
 
 **All of these files are optional.** Only create them when you need to override or extend defaults.
 
-## `useNewFrontendSystem` (app-next / NFS)
+The package includes default current-frontend plugins. Override their versions or
+configuration in `tests/config/dynamic-plugins.yaml` ([guide](/guide/configuration/config-files#dynamic-pluginsyaml)).
 
-When the new frontend system is enabled (see [`configure()`](/guide/deployment/rhdh-deployment#configureoptions) and [New frontend system](/guide/deployment/rhdh-deployment#new-frontend-system-usenewfrontendsystem)), `@red-hat-developer-hub/e2e-test-utils` merges:
-
-- **Dynamic plugins** — Default OCI entries for **app-auth** and **app-integrations** as package defaults; override versions in `tests/config/dynamic-plugins.yaml` ([guide](/guide/configuration/config-files#dynamic-pluginsyaml)).
-
-You can **remove** hand-maintained `app-auth` / `app-integrations` lines from `dynamic-plugins.yaml` when the framework defaults match your train.
-
-Optional **`value_file-app-next.yaml`** is merged last when the new frontend system is active and the file exists — use for chart tweaks specific to app-next runs.
+Helm-specific overrides belong in `value_file.yaml` and are merged after the
+package defaults.
 
 ## app-config-rhdh.yaml (Optional)
 

@@ -9,7 +9,7 @@ The package provides configuration tools for ESLint, TypeScript, and RHDH deploy
 | [Configuration Files](/guide/configuration/config-files) | YAML configuration structure |
 | [ESLint Configuration](/guide/configuration/eslint-config) | Pre-configured ESLint rules |
 | [TypeScript Configuration](/guide/configuration/typescript-config) | Base TypeScript settings |
-| [Environment Variables](/guide/configuration/environment-variables) | All environment variables (including NFS / app-next, e.g. `USE_NEW_FRONTEND_SYSTEM`) |
+| [Environment Variables](/guide/configuration/environment-variables) | All environment variables |
 | [Disabling Default Plugins](/guide/configuration/disable-plugins) | Disabling pre-enabled DPDY plugins that may cause configuration conflicts |
 
 ## Project Configuration
@@ -69,7 +69,8 @@ RHDH configurations are merged in layers:
 
 This allows you to override only what you need while using sensible defaults.
 
-For tests targeting the **new frontend system** (app-next), see [RHDH deployment — New frontend system](/guide/deployment/rhdh-deployment#new-frontend-system-usenewfrontendsystem) and [NFS-related options](/guide/configuration/environment-variables#new-frontend-system-app-next).
+The package targets the current RHDH frontend by default. Workspace-specific
+configuration can override the package defaults.
 
 ## Plugin Metadata Injection
 

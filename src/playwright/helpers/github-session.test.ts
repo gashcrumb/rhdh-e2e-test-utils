@@ -31,7 +31,7 @@ describe("github session file naming", () => {
     // same 30-second window submit the identical code and GitHub rejects the second.
     // Sharing the session is the point; withGithubSessionLock is what makes it safe.
     const file = githubSessionFile("rhdh-qe");
-    assert.doesNotMatch(path.basename(file), /app-next|project/);
+    assert.doesNotMatch(path.basename(file), /project/);
   });
 
   it("is absolute, so it does not follow a later chdir", () => {

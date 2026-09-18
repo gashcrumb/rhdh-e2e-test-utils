@@ -9,6 +9,7 @@ import {
   extractPluginName,
   getNormalizedPluginMergeKey,
   disablePlugins,
+  applyDisabledPlugins,
   normalizeDisablePluginName,
   generatePluginsFromMetadata,
 } from "../plugin-metadata.js";
@@ -152,6 +153,29 @@ describe("normalizeDisablePluginName", () => {
 });
 
 describe("disablePlugins", () => {
+  it("disables an existing OCI entry by normalized plugin name", () => {
+    const result = applyDisabledPlugins(
+      {
+        plugins: [
+          {
+            package:
+              "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/red-hat-developer-hub-backstage-plugin-app-auth:bs_1.54.6__1.1.0",
+            disabled: false,
+          },
+        ],
+      },
+      disablePlugins(["red-hat-developer-hub-backstage-plugin-app-auth"]),
+    );
+
+    assert.deepStrictEqual(result.plugins, [
+      {
+        package:
+          "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/red-hat-developer-hub-backstage-plugin-app-auth:bs_1.54.6__1.1.0",
+        disabled: true,
+      },
+    ]);
+  });
+
   it("returns empty plugins array for empty input", () => {
     const result = disablePlugins([]);
     assert.deepStrictEqual(result, { plugins: [] });

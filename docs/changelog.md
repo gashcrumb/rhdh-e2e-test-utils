@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.1.16] - Current
+## [2.1.17] - Current
+
+### Changed
+
+- **Current frontend is the deployment baseline**: removed the `useNewFrontendSystem` option, frontend-mode auto-detection, `config/new-frontend-system/`, and the associated environment toggles. Current frontend plugin defaults now merge with the common deployment configuration.
+
+## [2.1.16]
 
 ### Added
 

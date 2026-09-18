@@ -58,41 +58,10 @@ test("example", async ({ rhdh }) => {
 | `valueFile` | `string` | Helm values file (Helm only) |
 | `subscription` | `string` | Backstage CR file (Operator only) |
 | `disablePlugins` | `string[]` | Default plugins to disable in PR builds (wrapper + OCI `{{inherit}}`) |
-| `useNewFrontendSystem` | `boolean` | Enables the Backstage **new frontend system** shell (app-next / NFS): merges default OCI **app-auth** and **app-integrations** plugins (as defaults — override in `tests/config/dynamic-plugins.yaml`), and extra Helm values from `config/new-frontend-system/value_file.yaml` plus optional `tests/config/value_file-app-next.yaml`. Omit to **auto-detect**: on when the namespace ends with `-app-next` or `USE_NEW_FRONTEND_SYSTEM=true`. Pass `false` to force off. |
 
-### New frontend system (`useNewFrontendSystem`)
-
-Use the **app-next** frontend when any of these apply:
-
-- You pass `useNewFrontendSystem: true` in **`configure()`** (explicit), or
-- The Playwright project name (which becomes the Kubernetes namespace) ends with **`-app-next`**, or
-- You set environment variable **`USE_NEW_FRONTEND_SYSTEM=true`**
-
-Pass **`useNewFrontendSystem: false`** to run in a `-app-next` namespace without NFS layers.
-
-Typical explicit flow:
-
-```typescript
-await rhdh.configure({
-  auth: "keycloak",
-  useNewFrontendSystem: true,
-});
-await rhdh.deploy();
-```
-
-With a project named e.g. `my-plugin-app-next`, you can omit the flag and still get NFS merges:
-
-```typescript
-await rhdh.configure({ auth: "keycloak" });
-await rhdh.deploy();
-```
-
-What gets merged (same order as other config: package defaults → auth → NFS defaults → your workspace files; later wins):
-
-1. **Dynamic plugins** — Default OCI refs for `red-hat-developer-hub-backstage-plugin-app-auth` and `...-app-integrations` from package YAML; override pins in **`tests/config/dynamic-plugins.yaml`** (same as other plugins).
-2. **Helm** — Package `config/new-frontend-system/value_file.yaml`, then your `value_file.yaml`, then optional `tests/config/value_file-app-next.yaml` when that file exists.
-
-Workspace-specific **app-config** (titles, plugin routes, etc.) remains your responsibility.
+The package defaults include the current RHDH frontend plugins and are merged before
+authentication and workspace-specific configuration. Override their versions in
+`tests/config/dynamic-plugins.yaml` in the same way as any other plugin.
 
 ### Example: Full Configuration
 
@@ -149,7 +118,7 @@ await rhdh.deploy({ timeout: null });
 `deploy()` automatically skips if the deployment already succeeded in the current test run (e.g., after a worker restart due to test failure). This prevents expensive re-deployments.
 
 This method:
-1. Merges configuration files (common → auth → project overrides) for app-config and secrets, and the same with optional NFS defaults for dynamic plugins
+1. Merges configuration files (common → auth → project overrides) for app-config, secrets, and dynamic plugins
 2. Substitutes environment variables in the merged secrets (`envsubst`)
 3. [Injects plugin metadata](/guide/configuration/config-files#plugin-metadata-injection) into dynamic plugins config
 4. Applies ConfigMaps (app-config, dynamic-plugins)

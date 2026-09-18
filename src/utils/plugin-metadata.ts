@@ -645,6 +645,38 @@ export function disablePlugins(plugins: string[]): DynamicPluginsConfig {
 }
 
 /**
+ * Marks matching plugins disabled and adds fallback disable entries for plugins
+ * that are not already present in the merged configuration.
+ */
+export function applyDisabledPlugins(
+  config: DynamicPluginsConfig,
+  disabledConfig: DynamicPluginsConfig,
+): DynamicPluginsConfig {
+  const disabledPlugins = disabledConfig.plugins ?? [];
+  const disabledNames = new Set(
+    disabledPlugins.map((plugin) => getNormalizedPluginMergeKey(plugin)),
+  );
+  const plugins = (config.plugins ?? []).map((plugin) =>
+    disabledNames.has(getNormalizedPluginMergeKey(plugin))
+      ? { ...plugin, disabled: true }
+      : plugin,
+  );
+  const presentNames = new Set(
+    plugins.map((plugin) => getNormalizedPluginMergeKey(plugin)),
+  );
+
+  return {
+    ...config,
+    plugins: [
+      ...plugins,
+      ...disabledPlugins.filter(
+        (plugin) => !presentNames.has(getNormalizedPluginMergeKey(plugin)),
+      ),
+    ],
+  };
+}
+
+/**
  * Auto-generates plugin entries from workspace metadata files.
  * Creates raw entries with local paths and disabled: false.
  * Does NOT include pluginConfig — that's handled by processPluginsForDeployment.

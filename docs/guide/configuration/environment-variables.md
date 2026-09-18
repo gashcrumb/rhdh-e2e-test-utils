@@ -84,7 +84,6 @@ and manual recovery procedures.
 | `SKIP_KEYCLOAK_DEPLOYMENT`            | Skip Keycloak auto-deploy                                     | `false`                    |
 | `SKIP_OPERATOR_INSTALLATION`          | Skip operator installation in global setup                    | -                          |
 | `RHDH_SKIP_PLUGIN_METADATA_INJECTION` | Disable plugin metadata injection (local only, ignored in CI) | -                          |
-| `USE_NEW_FRONTEND_SYSTEM` | When `"true"`, enables new-frontend-system (app-next) merges when `useNewFrontendSystem` is not set in `configure()` options | - |
 
 ## Plugin Metadata Variables
 
@@ -103,20 +102,9 @@ These control automatic plugin configuration injection from metadata files.
 | `JOB_NAME`                            | CI job name (set by OpenShift CI/Prow)                  | If contains `periodic-`, nightly mode is activated                                                                                                                                       |
 | `JOB_MODE`                            | CI-only: `nightly` or `pr-check` (set by step registry) | Informational                                                                                                                                                                            |
 
-## New frontend system (app-next)
-
-NFS merge layers ship under `config/new-frontend-system/` in the package (dynamic plugins and Helm values), same layering idea as `auth/`.
-
-**Enabling app-next behavior**
-
-| Mechanism | Effect |
-|-----------|--------|
-| `useNewFrontendSystem: true` in [`configure()`](/guide/deployment/rhdh-deployment#new-frontend-system-usenewfrontendsystem) | Explicit enable |
-| `useNewFrontendSystem: false` | Explicit disable (overrides auto-detection) |
-| Playwright project / namespace ends with `-app-next` | Auto-enabled when `useNewFrontendSystem` is omitted |
-| `USE_NEW_FRONTEND_SYSTEM=true` | Auto-enabled for all namespaces when `useNewFrontendSystem` is omitted |
-
-**Overriding default OCI refs** for **app-auth** and **app-integrations** uses the same pattern as other plugins: add or adjust entries in your workspace `tests/config/dynamic-plugins.yaml` (merged after package NFS defaults, so your versions win).
+The package defaults include the current RHDH frontend plugins. Override their OCI
+references in your workspace `tests/config/dynamic-plugins.yaml` using the same
+pattern as any other plugin; workspace values are merged after package defaults.
 
 ### OCI URL Generation
 

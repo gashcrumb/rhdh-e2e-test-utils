@@ -271,8 +271,7 @@ const flagDir = path.join(os.tmpdir(), `playwright-once-${process.ppid}`);
 const flagFile = path.join(flagDir, `${key}.done`);
 ```
 
-Nothing in it comes from the project. So when one spec runs in two projects — which is
-what adding an `-app-next` lane does — the first project's setup satisfies the second,
+Nothing in it comes from the project. So when one spec runs in two projects, the first project's setup satisfies the second,
 and the second silently skips its own. For anything that deploys, that means no
 deployment at all, then a failure much later on a missing element with nothing pointing
 at the cause.

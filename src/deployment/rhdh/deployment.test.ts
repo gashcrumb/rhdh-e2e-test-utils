@@ -50,12 +50,12 @@ describe("dynamic-plugins merge (no user config path)", () => {
     );
   });
 
-  it("keeps user app-auth OCI ref over NFS defaults for same logical plugin", () => {
-    const nfsDefaults: Record<string, unknown> = {
+  it("keeps user app-auth OCI ref over package defaults for the same logical plugin", () => {
+    const packageDefaults: Record<string, unknown> = {
       plugins: [
         {
           package:
-            "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/red-hat-developer-hub-backstage-plugin-app-auth:bs_1.49.4__0.0.1",
+            "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/red-hat-developer-hub-backstage-plugin-app-auth:bs_1.54.6__1.1.0",
           disabled: false,
         },
       ],
@@ -69,7 +69,7 @@ describe("dynamic-plugins merge (no user config path)", () => {
         },
       ],
     };
-    const merged = deepMerge(nfsDefaults, userPlugins, {
+    const merged = deepMerge(packageDefaults, userPlugins, {
       arrayMergeStrategy: {
         byKey: "package",
         normalizeKey: (item) =>
@@ -80,25 +80,25 @@ describe("dynamic-plugins merge (no user config path)", () => {
     assert.strictEqual(plugins.length, 1);
     assert.ok(
       plugins[0].package?.includes("older__0.0.1"),
-      "user layer must win over NFS defaults for the same logical plugin",
+      "user layer must win over package defaults for the same logical plugin",
     );
   });
 
-  it("does not duplicate includes when NFS layer omits includes", () => {
+  it("does not duplicate includes when a package layer omits includes", () => {
     const common: Record<string, unknown> = {
       includes: ["dynamic-plugins.default.yaml"],
       plugins: [],
     };
-    const nfsLayer: Record<string, unknown> = {
+    const packageLayer: Record<string, unknown> = {
       plugins: [
         {
           package:
-            "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/red-hat-developer-hub-backstage-plugin-app-auth:bs_1.49.4__0.0.1",
+            "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/red-hat-developer-hub-backstage-plugin-app-auth:bs_1.54.6__1.1.0",
           disabled: false,
         },
       ],
     };
-    const merged = deepMerge(common, nfsLayer, {
+    const merged = deepMerge(common, packageLayer, {
       arrayMergeStrategy: {
         byKey: "package",
         normalizeKey: (item) =>

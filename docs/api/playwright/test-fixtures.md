@@ -99,11 +99,10 @@ Executes `fn` exactly once per test run, even across worker restarts. Returns `t
 
 ::: warning One key, two projects
 The flag file is keyed on the key string alone, in a directory shared by every project in
-the run. When one spec runs in two projects — which is what adding an `-app-next` lane
-does — the first project's setup satisfies the second, and the second silently skips its
-own. End the key with `${rhdh.deploymentConfig.namespace}` whenever the setup belongs to
-one project, the way `deploy()` does internally. A literal key is correct only when the
-setup really is shared by every project.
+the run. When one spec runs in two projects, the first project's setup satisfies the second,
+and the second silently skips its own. End the key with `${rhdh.deploymentConfig.namespace}`
+whenever the setup belongs to one project, the way `deploy()` does internally. A literal key
+is correct only when the setup really is shared by every project.
 :::
 
 ```typescript

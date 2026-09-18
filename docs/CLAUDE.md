@@ -132,7 +132,7 @@ Resolves config paths from `test.info().project.testDir` (not CWD). This enables
 Namespace cleanup uses a custom Playwright Reporter, not `afterAll` hooks or fixture teardown. This is because `afterAll` and fixture cleanup fire on worker restart (before retries), which would delete the namespace while tests still need it.
 
 ### Configuration Merging
-3-level cascade: package defaults -> auth-specific -> user overrides. Arrays use "replace" strategy by default. Plugin arrays use `byKey: "package"` with normalized keys (strips `-dynamic` suffix).
+3-level cascade: package defaults -> auth-specific -> user overrides. Arrays use "replace" strategy by default. Both dynamic-plugin merge paths use `byKey: "package"` with normalized keys (strips `-dynamic` suffix).
 
 ### deploy() Has Built-in Protection
 `rhdh.deploy()` uses `runOnce()` internally — its key carries the namespace (`deploy-${namespace}`), so it is already once per project, even across worker restarts. No wrapping needed unless there's other expensive setup: use `test.runOnce(`key-${rhdh.deploymentConfig.namespace}`, fn)` for that, because the flag directory is shared by every project in the run and a literal key would leave a second project with no setup.
@@ -200,7 +200,7 @@ When documenting, reference these source files:
 | YAML Merging | `src/utils/merge-yamls.ts` |
 | Bash ($) | `src/utils/bash.ts` |
 | envsubst | `src/utils/common.ts` |
-| Config Templates | `src/deployment/rhdh/config/{common,auth,new-frontend-system,helm,operator}/` |
+| Config Templates | `src/deployment/rhdh/config/{common,auth,helm,operator}/` |
 
 ## Common Tasks
 
