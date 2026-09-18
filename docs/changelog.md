@@ -2,7 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.1.15] - Current
+## [2.1.16] - Current
+
+### Added
+
+- **Bitwarden/GSM secret management**: Added create, update, delete, describe, and list commands with unified dry-runs, forced reconciliation, Bitwarden read-back verification, and GSM operations through the OpenShift CI wrapper.
+- **Portable secret streaming**: Added opt-in `--stream-secrets` support for
+  passing selected `{name,value}` entries through inherited file descriptor 3,
+  marked by `RHDH_E2E_SECRET_FD=3`, without placing values in the child
+  environment. Normal execution remains environment-based for compatibility.
+
+### Changed
+
+- **Secrets CLI reliability**: Added safer retry guidance, canonical mutation locks, bounded GSM timeouts, metadata-only GSM JSON output, and lower-overhead Bitwarden reads.
+
+## [2.1.15]
 
 ### Fixed
 

@@ -6,6 +6,11 @@ export type ReadableCollectionId =
 export interface CollectionMapping {
   id: ReadableCollectionId;
   bitwardenCollection: string;
+  gsmCollection?: string;
+}
+
+interface GsmCollectionMapping extends CollectionMapping {
+  gsmCollection: string;
 }
 
 export interface SecretProfile {
@@ -37,26 +42,33 @@ export interface ExpandedSecretProfile {
   selectors: readonly ExpandedSecretSelector[];
 }
 
-const COLLECTIONS: readonly CollectionMapping[] = [
+export const COLLECTIONS: readonly GsmCollectionMapping[] = [
   {
     id: "rhdh-qe",
     bitwardenCollection: "Rhdh Qe Ci Secrets",
+    gsmCollection: "rhdh-qe",
   },
   {
     id: "rhdh-test-instance",
     bitwardenCollection: "Rhdh Test Instance Ci Secrets",
+    gsmCollection: "rhdh-test-instance",
   },
   {
     id: "rhdh-plugin-export-overlays",
     bitwardenCollection: "Rhdh Plugin Export Overlays Ci Secrets",
+    gsmCollection: "rhdh-plugin-export-overlays",
   },
 ];
+
+export const READABLE_COLLECTIONS = COLLECTIONS.map(
+  ({ id }) => id,
+) as readonly ReadableCollectionId[];
 
 const DENIED_COLLECTION = "rhdh-aws-credentials";
 const WORKSPACE_TOKEN = "${workspace}";
 const WORKSPACE_NAME = /^[a-z0-9][a-z0-9-]*$/;
 
-export function getCollectionMapping(collection: string): CollectionMapping {
+export function getCollectionMapping(collection: string): GsmCollectionMapping {
   if (collection === DENIED_COLLECTION) {
     throw new Error(
       `Collection ${DENIED_COLLECTION} is GSM-only and cannot be read from Bitwarden`,
@@ -68,6 +80,41 @@ export function getCollectionMapping(collection: string): CollectionMapping {
   }
 
   return COLLECTIONS.find((mapping) => mapping.id === collection)!;
+}
+
+export function gsmPathFromBitwardenPath(path: string): string {
+  return bitwardenPathFromGsmPath(path).replaceAll(".", "--dot--");
+}
+
+export function bitwardenPathFromGsmPath(path: string): string {
+  validateSecretPath(path);
+  const bitwardenPath = path.replaceAll("--dot--", ".");
+  validateSecretPath(bitwardenPath);
+  return bitwardenPath;
+}
+
+export function validateSecretPath(path: string): void {
+  if (path.length === 0 || path.startsWith("/")) {
+    throw new Error(`Invalid secret path: ${path}`);
+  }
+  const segments = path.split("/");
+  if (segments.length < 2 || segments.some((segment) => segment.length === 0)) {
+    throw new Error(`Secret path must use group/field form: ${path}`);
+  }
+  if (
+    segments.some(
+      (segment) =>
+        segment === "." ||
+        segment === ".." ||
+        segment.length > 255 ||
+        !/^[A-Za-z0-9_.-]+$/.test(segment),
+    )
+  ) {
+    if (segments.some((segment) => segment.length > 255)) {
+      throw new Error(`Secret path segment is too long: ${path}`);
+    }
+    throw new Error(`Invalid secret path segment: ${path}`);
+  }
 }
 
 export function parseProfile(value: unknown): SecretProfile {

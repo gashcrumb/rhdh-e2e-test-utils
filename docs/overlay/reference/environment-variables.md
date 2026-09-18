@@ -18,6 +18,14 @@ All secrets **must** start with the `VAULT_` prefix (e.g., `VAULT_API_KEY`, `VAU
 For local access, use the `e2e-secrets.profile.json` profile and the
 `rhdh-e2e-secrets exec` command.
 
+Normal execution forwards selected values as environment variables. Consumers
+that support the portable stream can opt in with
+`rhdh-e2e-secrets exec --stream-secrets -- <command>`. The CLI removes the
+selected names from the child environment and sends `{name,value}` entries on
+inherited file descriptor 3. It sets the non-secret child marker
+`RHDH_E2E_SECRET_FD=3`; stdin remains inherited, and the consumer must decode
+the stream and close FD 3 immediately afterward.
+
 ## Bitwarden Access (Local Development)
 
 The `--secrets` runner flag or `test:secrets` script invokes the standalone
@@ -31,6 +39,12 @@ yarn test:secrets
 ```
 
 See [Running Locally - Secrets from Bitwarden](/overlay/tutorials/running-locally#secrets-from-bitwarden) for full details.
+
+GSM wrapper downloads use Node's network client. Set `NODE_USE_ENV_PROXY=1`
+when `HTTP_PROXY` or `HTTPS_PROXY` is required, and set `NODE_EXTRA_CA_CERTS`
+for a corporate or internal CA. The GSM wrapper cache and mutation lock state
+use `XDG_CACHE_HOME` and `XDG_STATE_HOME` when those variables are absolute
+paths.
 
 ## Core Variables
 

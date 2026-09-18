@@ -15,7 +15,7 @@ The package provides multiple entry points for different use cases. Each export 
 | `@red-hat-developer-hub/e2e-test-utils/pages` | Page object classes for common RHDH pages |
 | `@red-hat-developer-hub/e2e-test-utils/eslint` | ESLint configuration factory |
 | `@red-hat-developer-hub/e2e-test-utils/tsconfig` | Base TypeScript configuration |
-| `@red-hat-developer-hub/e2e-test-utils/secrets` | Bitwarden local secret execution APIs |
+| `@red-hat-developer-hub/e2e-test-utils/secrets` | Bitwarden local execution and Bitwarden/GSM secret management APIs |
 
 ## Detailed Exports
 
@@ -121,13 +121,17 @@ import {
   BitwardenClient,
   executeCommand,
   parseProfile,
+  executeMutation,
 } from "@red-hat-developer-hub/e2e-test-utils/secrets";
 ```
 
 The secrets export provides profile validation, scoped Bitwarden reads, safe
-child-environment materialization, and programmatic command execution. The
-`rhdh-e2e-secrets` CLI is a separate executable and is not imported by
-Playwright global setup.
+child-environment materialization, programmatic command execution, and
+Bitwarden/GSM create, update, delete, describe, and list operations with
+preflight. Note mutations validate Bitwarden edit responses and independently
+verify attachment storage; GSM writes are reported from the wrapper exit
+status. The `rhdh-e2e-secrets` CLI is a separate executable and is not imported
+by Playwright global setup.
 
 ## Usage Patterns
 

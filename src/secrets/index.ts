@@ -1,7 +1,12 @@
 export {
+  bitwardenPathFromGsmPath,
   expandProfile,
   getCollectionMapping,
+  gsmPathFromBitwardenPath,
   parseProfile,
+  COLLECTIONS,
+  READABLE_COLLECTIONS,
+  validateSecretPath,
   type CollectionMapping,
   type EnvironmentDestination,
   type ExpandedSecretProfile,
@@ -14,17 +19,62 @@ export {
   BitwardenClient,
   type BitwardenClientOptions,
   type BitwardenAttachment,
+  type BitwardenSecretItem,
+  type BitwardenSecretStorage,
   type BitwardenSecret,
 } from "./bitwarden.js";
 export {
   executeCommand,
   runChild,
   type ChildRunner,
+  type ChildRunnerOptions,
   type ExecuteCommandOptions,
   type SecretReader,
 } from "./exec.js";
 export {
   materializeEnvironment,
+  materializeEnvironmentWithSecrets,
   removeProviderEnvironmentVariables,
   type EnvironmentSecret,
+  type MaterializedEnvironment,
+  type MaterializedSecret,
 } from "./environment.js";
+export {
+  GsmClient,
+  GsmNotFoundError,
+  type GsmClientOptions,
+  type GsmMetadata,
+  type GsmRunner,
+  type GsmRunOptions,
+} from "./gsm.js";
+export {
+  GsmWrapper,
+  defaultCacheDir,
+  validateWrapper,
+  type GsmWrapperMetadata,
+  type GsmWrapperOptions,
+  type GsmWrapperRunResult,
+} from "./gsm-wrapper.js";
+export {
+  executeMutation,
+  createPlan,
+  type ExecuteMutationOptions,
+  type MutationAction,
+  type MutationBitwarden,
+  type MutationCommand,
+  type MutationGsm,
+  type MutationPlan,
+  type MutationResult,
+} from "./mutation.js";
+export {
+  readSecretInput,
+  type SecretInput,
+  type SecretInputOptions,
+} from "./secret-input.js";
+export {
+  decodeSecretStream,
+  SECRET_STREAM_ENVIRONMENT_VARIABLE,
+  SECRET_STREAM_FD,
+  writeSecretStream,
+  type SecretStreamEntry,
+} from "./stream.js";

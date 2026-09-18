@@ -3,9 +3,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  bitwardenPathFromGsmPath,
   expandProfile,
   getCollectionMapping,
+  gsmPathFromBitwardenPath,
   parseProfile,
+  type CollectionMapping,
   type SecretProfile,
 } from "../config.js";
 
@@ -39,7 +42,36 @@ test("maps each approved collection to its exact Bitwarden collection name", () 
   assert.deepEqual(getCollectionMapping("rhdh-qe"), {
     id: "rhdh-qe",
     bitwardenCollection: "Rhdh Qe Ci Secrets",
+    gsmCollection: "rhdh-qe",
   });
+});
+
+test("keeps legacy collection mappings constructible without a GSM name", () => {
+  const mapping: CollectionMapping = {
+    id: "rhdh-qe",
+    bitwardenCollection: "Rhdh Qe Ci Secrets",
+  };
+  assert.equal(mapping.gsmCollection, undefined);
+});
+
+test("maps dotted Bitwarden paths to the GSM punctuation encoding", () => {
+  assert.equal(
+    gsmPathFromBitwardenPath("rhdh/azure-db-certificates.pem"),
+    "rhdh/azure-db-certificates--dot--pem",
+  );
+});
+
+test("normalizes a GSM-encoded path for Bitwarden and preserves GSM encoding", () => {
+  const gsmPath = "rhdh/already--dot--encoded";
+  assert.equal(bitwardenPathFromGsmPath(gsmPath), "rhdh/already.encoded");
+  assert.equal(gsmPathFromBitwardenPath(gsmPath), gsmPath);
+});
+
+test("rejects overlong rotation path segments", () => {
+  assert.throws(
+    () => gsmPathFromBitwardenPath(`rhdh/${"a".repeat(256)}`),
+    /too long/i,
+  );
 });
 
 test("rejects the GSM-only AWS collection before Bitwarden access", () => {

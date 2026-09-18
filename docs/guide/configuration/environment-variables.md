@@ -29,13 +29,51 @@ These are set automatically during deployment:
 
 ## Local Secret Execution
 
-| Variable     | Description                                                    | Required |
-| ------------ | -------------------------------------------------------------- | -------- |
-| `BW_SESSION` | Session from an already unlocked local `bw` CLI installation   | For `rhdh-e2e-secrets` |
+| Variable                | Description                                                    | Required |
+| ----------------------- | -------------------------------------------------------------- | -------- |
+| `BW_SESSION`            | Session from an already unlocked local `bw` CLI installation   | For `rhdh-e2e-secrets` |
+| `RHDH_E2E_SECRET_FD`    | Internal child marker for the opt-in secret stream on FD 3      | Set by the CLI |
 
 Export `BW_SESSION` in the invoking shell before running
-`rhdh-e2e-secrets exec`. The wrapper uses it to retrieve selected secrets and
-removes it from the child test process.
+`rhdh-e2e-secrets exec`, `create`, `update`, or `delete`. The wrapper uses it to
+retrieve or update selected Bitwarden items and removes it from child test
+processes. The `describe` and `list` commands query GSM only and do not need
+`BW_SESSION`.
+
+Normal `rhdh-e2e-secrets exec` execution remains environment-based. To opt in
+to the stream transport, run
+`rhdh-e2e-secrets exec --stream-secrets -- <command>`. The CLI removes the
+selected secret names from the child environment, sends their `{name,value}`
+entries over inherited file descriptor 3, and sets
+`RHDH_E2E_SECRET_FD=3`. This marker is not a secret value or a user-configured
+credential. The child's stdin remains inherited, and a consumer must decode
+the stream and close FD 3 immediately afterward.
+
+GSM secret operations use the cached OpenShift CI wrapper. Run
+`rhdh-e2e-secrets gsm-login` once before the first GSM operation; use
+`rhdh-e2e-secrets gsm-clean` to remove its cached credentials. The wrapper
+honors its existing `CONTAINER_ENGINE` and `SECRET_MANAGER_IMAGE` variables.
+`SECRET_MANAGER_IMAGE` must refer to the `quay.io/openshift/ci-public` repository;
+the wrapper and image follow the upstream moving release channel and are not
+version-pinned. The package verifies the download URL and wrapper structure,
+but this remains an explicit trust boundary on OpenShift CI's GitHub and Quay
+repositories.
+The wrapper cache defaults to `~/.cache/rhdh-e2e-secrets/gsm` and mutation
+locks default to `~/.local/state/rhdh-e2e-secrets`; `XDG_CACHE_HOME` and
+`XDG_STATE_HOME` override those locations when set to absolute paths. For
+corporate network setups, start Node with `NODE_USE_ENV_PROXY=1` to use
+`HTTP_PROXY`/`HTTPS_PROXY`, and use `NODE_EXTRA_CA_CERTS` for an additional
+trusted CA.
+
+Secret mutation files are created below `os.tmpdir()/rhdh-e2e-secrets` with
+`0700` directories and `0600` files. They are removed after each mutation
+operation completes, and abandoned directories from processes that no longer
+exist are removed before the next operation that creates a temporary secret.
+Read-only commands and dry runs do not trigger this cleanup. The operating
+system's temporary-file cleanup is only a final fallback after an ungraceful
+termination such as `SIGKILL`. See
+[Temporary secret files](/api/secrets#temporary-secret-files) for the cleanup
+and manual recovery procedures.
 
 ## Optional Variables
 
